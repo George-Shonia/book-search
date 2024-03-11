@@ -8,6 +8,7 @@ const App = () => {
   const [bookSearchType, setBookSearchType] = useState("all");
   const [books, setBooks] = useState([]);
   const [fetchData, setFetchData] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
 
   const onSubmitHandler = (e) => {
     e.preventDefault();
@@ -25,6 +26,7 @@ const App = () => {
 
   useEffect(() => {
     if (fetchData) {
+      setIsLoading(true);
       axios
         .get(
           `https://openlibrary.org/search.json?q=${bookSearchType}:${bookSearch}`
@@ -32,11 +34,13 @@ const App = () => {
         .then((response) => {
           console.log(response.data);
           setBooks(response.data.docs);
+          setIsLoading(false);
         })
         .catch((error) => {
           console.error("Error fetching data:", error);
         });
     }
+    
     setFetchData(false);
   }, [fetchData, bookSearch, bookSearchType]);
 
@@ -48,8 +52,11 @@ const App = () => {
         onSearchTypeChangeHandler={onSearchTypeChangeHandler}
         bookSearchType={bookSearchType}
       />
-      {books === "" && fetchData && <h1>Loading...</h1>}
-      <Books books={books} />
+        {isLoading ? (
+        <div style={{display: 'flex', justifyContent: 'center', paddingTop: '15%'}}> <h1>Loading...</h1> </div>
+      ) : (
+        <Books books={books} />
+      )}
     </div>
   );
 };
